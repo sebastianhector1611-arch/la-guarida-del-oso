@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Guarida del Oso - Gremio de Aventureros</title>
+    <!-- Google Fonts Fantasía Medieval -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=MedievalSharp&family=Spectral:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        parchment: '#1c1611',
+                        'parchment-card': '#261e17',
+                        'parchment-light': '#32271e',
+                        gold: '#d4af37',
+                        'gold-bright': '#f3e5ab',
+                        'border-gold': '#b8860b',
+                        'ruby-red': '#8b0000',
+                        'forest-green': '#1b4332',
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        medieval: ['MedievalSharp', 'cursive'],
+                        spectral: ['Spectral', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0b0907;
+            background-image: 
+                radial-gradient(circle at 50% 0%, #2a1f14 0%, transparent 75%),
+                radial-gradient(circle at 50% 100%, #150f0a 0%, #080604 100%);
+            color: #e2d7c5;
+            font-family: 'Spectral', serif;
+        }
+
+        .gold-border {
+            border: 2px solid #b8860b;
+            box-shadow: 0 0 15px rgba(184, 134, 11, 0.2), inset 0 0 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .gold-text-glow {
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 2px 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        .medieval-box {
+            background-color: #211912;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px);
+            border: 2px solid #b8860b;
+            position: relative;
+        }
+
+        .medieval-box::before {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px; right: 3px; bottom: 3px;
+            border: 1px dashed rgba(184, 134, 11, 0.4);
+            pointer-events: none;
+        }
+
+        /* Scrollbar medieval */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #120e0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #b8860b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
+
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+
+    <div class="max-w-6xl mx-auto px-4 py-6">
+
+        <!-- ================= ENCABEZADO / BANNER ================= -->
+        <header class="medieval-box rounded-lg p-6 md:p-10 mb-10 text-center overflow-hidden">
+            <div class="relative z-10 flex flex-col items-center">
+        // Mascot / Logo Owlbear -->
+                <div class="relative group cursor-pointer" onclick="triggerRoar()">
+                    <img id="owlbearLogo" 
+                         src="https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=400&q=80" 
+                         alt="Oso Búho" 
+                         class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-gold shadow-2xl transition duration-300 transform group-hover:scale-105">
+                    <div class="absolute inset-0 rounded-full bg-gold opacity-0 group-hover:opacity-20 transition"></div>
+                    <span class="absolute -bottom-2 bg-ruby-red text-gold-bright font-cinzel text-xs px-3 py-1 rounded-full border border-gold shadow">
+                        <i class="fa-solid fa-volume-high mr-1"></i> Rugir
+                    </span>
+                </div>
+
+                <h1 class="font-cinzel text-3xl md:text-5xl font-black text-gold gold-text-glow mt-6 tracking-wider">
+                    LA GUARIDA DEL OSO
+                </h1>
+                <p class="font-medieval text-lg md:text-2xl text-amber-200/80 mt-2">
+                    Gremio Oficial de Aventureros & Santuario del Oso Búho
+                </p>
+
+                <!-- Botones Globales de Control -->
+                <div class="mt-6 flex flex-wrap justify-center gap-3">
+                    <button onclick="toggleSoundtrack()" id="audioBtn" class="bg-forest-green hover:bg-emerald-800 text-gold-bright font-cinzel px-4 py-2 rounded border border-gold text-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-music"></i> <span id="audioStatus">Música de Taberna: OFF</span>
+                    </button>
+                    <button onclick="resetToDefaultData()" class="bg-ruby-red hover:bg-red-900 text-white font-cinzel px-4 py-2 rounded border border-gold text-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-left"></i> Restablecer Datos
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ================= TABLÓN DE MISIONES ================= -->
+        <section class="medieval-box rounded-lg p-6 mb-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-gold pb-4 mb-6 gap-4">
+                <h2 class="font-cinzel text-2xl md:text-3xl text-gold font-bold flex items-center gap-3">
+                    <i class="fa-solid fa-scroll text-amber-500"></i> Tablón de Misiones (Próximos Planes)
+                </h2>
+                <button onclick="openQuestModal()" class="bg-amber-700 hover:bg-amber-600 text-gold-bright font-cinzel px-4 py-2 rounded border border-gold text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Nueva Misión
+                </button>
+            </div>
+
+            <!-- Lista de misiones -->
+            <div id="questList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Se carga dinámicamente -->
+            </div>
+        </section>
+
+        <!-- ================= BESTIARIO / INTEGRANTES ================= -->
+        <section class="medieval-box rounded-lg p-6 mb-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-gold pb-4 mb-6 gap-4">
+                <h2 class="font-cinzel text-2xl md:text-3xl text-gold font-bold flex items-center gap-3">
+                    <i class="fa-solid fa-paw text-amber-500"></i> Bestiario de la Guarida (Integrantes)
+                </h2>
+                <button onclick="openMemberModal()" class="bg-amber-700 hover:bg-amber-600 text-gold-bright font-cinzel px-4 py-2 rounded border border-gold text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> Añadir Aventurero
+                </button>
+            </div>
+
+            <!-- Grilla de integrantes -->
+            <div id="memberList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Se carga dinámicamente -->
+            </div>
+        </section>
+
+        <!-- ================= EL GRIMORIO / HECHIZOS ================= -->
+        <section class="medieval-box rounded-lg p-6 mb-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-gold pb-4 mb-6 gap-4">
+                <h2 class="font-cinzel text-2xl md:text-3xl text-gold font-bold flex items-center gap-3">
+                    <i class="fa-solid fa-book-skull text-amber-500"></i> El Grimorio del Oso (Frases Épicas)
+                </h2>
+                <button onclick="openSpellModal()" class="bg-amber-700 hover:bg-amber-600 text-gold-bright font-cinzel px-4 py-2 rounded border border-gold text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Nuevo Hechizo / Frase
+                </button>
+            </div>
+
+            <!-- Lista de Hechizos -->
+            <div id="spellList" class="space-y-3">
+                <!-- Se carga dinámicamente -->
+            </div>
+        </section>
+
+        <!-- ================= REGISTRO DE TESOROS (GALERÍA) ================= -->
+        <section class="medieval-box rounded-lg p-6 mb-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-gold pb-4 mb-6 gap-4">
+                <h2 class="font-cinzel text-2xl md:text-3xl text-gold font-bold flex items-center gap-3">
+                    <i class="fa-solid fa-gem text-amber-500"></i> Registro de Tesoros (Fotos & Memes)
+                </h2>
+                <button onclick="openTreasureModal()" class="bg-amber-700 hover:bg-amber-600 text-gold-bright font-cinzel px-4 py-2 rounded border border-gold text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-camera"></i> Añadir Tesoro
+                </button>
+            </div>
+
+            <!-- Grilla de Galería -->
+            <div id="treasureList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Se carga dinámicamente -->
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="text-center font-medieval text-amber-200/60 text-sm mt-8 border-t border-gold/30 pt-4">
+            <p>Registrado en el Gran Libro del Oso Búho • Protegido por el Gremio de Aventureros</p>
+        </footer>
+
+    </div>
+
+    <!-- ================= MODALES INTERACTIVOS ================= -->
+
+    <!-- Modal Misiones -->
+    <div id="questModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50">
+        <div class="medieval-box p-6 rounded-lg max-w-md w-full">
+            <h3 id="questModalTitle" class="font-cinzel text-xl text-gold font-bold mb-4">Nueva Misión</h3>
+            <form id="questForm" onsubmit="saveQuest(event)" class="space-y-4 font-spectral">
+                <input type="hidden" id="questId">
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Título de la Misión</label>
+                    <input type="text" id="questTitle" required class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Tipo / Dificultad</label>
+                    <select id="questType" class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                        <option value="Misión Principal">Misión Principal</option>
+                        <option value="Misión Secundaria">Misión Secundaria</option>
+                        <option value="Evento Épico">Evento Épico</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Objetivo</label>
+                    <textarea id="questObjective" required rows="2" class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Recompensa</label>
+                    <input type="text" id="questReward" placeholder="+100 XP, Cerveza, Snacks" class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('questModal')" class="px-4 py-2 bg-gray-700 text-white rounded font-cinzel text-sm">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-gold-bright rounded font-cinzel text-sm border border-gold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Integrantes -->
+    <div id="memberModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="medieval-box p-6 rounded-lg max-w-lg w-full my-8">
+            <h3 id="memberModalTitle" class="font-cinzel text-xl text-gold font-bold mb-4">Aventurero</h3>
+            <form id="memberForm" onsubmit="saveMember(event)" class="space-y-3 font-spectral">
+                <input type="hidden" id="memberId">
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Nombre / Apodo</label>
+                    <input type="text" id="memberName" required class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Raza & Clase D&D</label>
+                    <input type="text" id="memberClass" placeholder="Bárbaro de la Cerveza" required class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">URL Foto de Perfil</label>
+                    <input type="url" id="memberPhoto" required class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-cinzel text-amber-200 mb-1">Fuerza (1-20)</label>
+                        <input type="number" id="statStr" min="1" max="20" value="10" class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-cinzel text-amber-200 mb-1">Paciencia (1-20)</label>
+                        <input type="number" id="statPac" min="1" max="20" value="10" class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Habilidad Pasiva / Característica</label>
+                    <textarea id="memberPassive" rows="2" placeholder="Ira de medianoche..." class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('memberModal')" class="px-4 py-2 bg-gray-700 text-white rounded font-cinzel text-sm">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-gold-bright rounded font-cinzel text-sm border border-gold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Grimorio / Hechizos -->
+    <div id="spellModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50">
+        <div class="medieval-box p-6 rounded-lg max-w-md w-full">
+            <h3 id="spellModalTitle" class="font-cinzel text-xl text-gold font-bold mb-4">Nuevo Hechizo / Frase</h3>
+            <form id="spellForm" onsubmit="saveSpell(event)" class="space-y-4 font-spectral">
+                <input type="hidden" id="spellId">
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Nombre del Hechizo / Frase</label>
+                    <input type="text" id="spellName" placeholder='✨ "Llego en 5 minutos"' required class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Efecto / Historia</label>
+                    <textarea id="spellEffect" rows="3" required placeholder="Distorsiona el tiempo y el espacio..." class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Lanzador / Autor (Opcional)</label>
+                    <input type="text" id="spellAuthor" placeholder="Lanzado por Carlos" class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('spellModal')" class="px-4 py-2 bg-gray-700 text-white rounded font-cinzel text-sm">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-gold-bright rounded font-cinzel text-sm border border-gold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tesoros -->
+    <div id="treasureModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50">
+        <div class="medieval-box p-6 rounded-lg max-w-md w-full">
+            <h3 class="font-cinzel text-xl text-gold font-bold mb-4">Añadir Tesoro / Foto</h3>
+            <form id="treasureForm" onsubmit="saveTreasure(event)" class="space-y-4 font-spectral">
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">URL de la Imagen</label>
+                    <input type="url" id="treasureUrl" required placeholder="https://..." class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-cinzel text-amber-200 mb-1">Título / Descripción corta</label>
+                    <input type="text" id="treasureTitle" placeholder="Viaje a la cueva 2024" required class="w-full bg-parchment-card border border-gold rounded p-2 text-white focus:outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('treasureModal')" class="px-4 py-2 bg-gray-700 text-white rounded font-cinzel text-sm">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-gold-bright rounded font-cinzel text-sm border border-gold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Audio sintetizado de fondo mediante Web Audio API -->
+    <script>
+        // === DATOS POR DEFECTO Y LOCALSTORAGE (INICIALIZADOS VACÍOS) ===
+        const defaultQuests = [];
+        const defaultMembers = [];
+        const defaultSpells = [];
+        const defaultTreasures = [];
+
+        // Estado global
+        let quests = JSON.parse(localStorage.getItem('guarida_quests')) || defaultQuests;
+        let members = JSON.parse(localStorage.getItem('guarida_members')) || defaultMembers;
+        let spells = JSON.parse(localStorage.getItem('guarida_spells')) || defaultSpells;
+        let treasures = JSON.parse(localStorage.getItem('guarida_treasures')) || defaultTreasures;
+
+        function saveData() {
+            localStorage.setItem('guarida_quests', JSON.stringify(quests));
+            localStorage.setItem('guarida_members', JSON.stringify(members));
+            localStorage.setItem('guarida_spells', JSON.stringify(spells));
+            localStorage.setItem('guarida_treasures', JSON.stringify(treasures));
+            renderAll();
+        }
+
+        function resetToDefaultData() {
+            if (confirm('¿Seguro que quieres vaciar la información guardada en la Guarida?')) {
+                quests = [];
+                members = [];
+                spells = [];
+                treasures = [];
+                saveData();
+            }
+        }
+
+        // === RENDERIZADO DE COMPONENTES CON MENSAJES DE ESTADO VACÍO ===
+
+        function renderQuests() {
+            const container = document.getElementById('questList');
+            if (quests.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-amber-200/60 font-medieval border border-dashed border-gold/30 rounded">
+                        <i class="fa-solid fa-scroll text-3xl mb-2 text-gold/50"></i>
+                        <p>No hay misiones activas en el tablón. ¡Añade el primer plan del grupo!</p>
+                    </div>`;
+                return;
+            }
+            container.innerHTML = quests.map(q => `
+                <div class="bg-parchment-card border-l-4 ${q.completed ? 'border-emerald-600 opacity-60' : 'border-ruby-red'} p-4 rounded shadow border border-gold/30 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-cinzel text-xs px-2 py-0.5 rounded ${q.completed ? 'bg-emerald-900 text-emerald-200' : 'bg-ruby-red text-gold-bright'} border border-gold/40">
+                                ${q.type}
+                            </span>
+                            <div class="flex gap-2">
+                                <button onclick="toggleQuestStatus('${q.id}')" class="text-amber-400 hover:text-amber-200 text-sm" title="Marcar Estado">
+                                    <i class="fa-solid ${q.completed ? 'fa-rotate-left' : 'fa-check'}"></i>
+                                </button>
+                                <button onclick="editQuest('${q.id}')" class="text-amber-400 hover:text-amber-200 text-sm" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteQuest('${q.id}')" class="text-red-400 hover:text-red-200 text-sm" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <h4 class="font-cinzel font-bold text-gold text-lg ${q.completed ? 'line-through' : ''}">${q.title}</h4>
+                        <p class="text-sm text-amber-100/90 mt-2"><strong>Objetivo:</strong> ${q.objective}</p>
+                        ${q.reward ? `<p class="text-xs text-amber-300/80 mt-1"><strong>Recompensa:</strong> ${q.reward}</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderMembers() {
+            const container = document.getElementById('memberList');
+            if (members.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-amber-200/60 font-medieval border border-dashed border-gold/30 rounded">
+                        <i class="fa-solid fa-users text-3xl mb-2 text-gold/50"></i>
+                        <p>El Bestiario está vacío. Presiona "Añadir Aventurero" para registrar a tus amigos.</p>
+                    </div>`;
+                return;
+            }
+            container.innerHTML = members.map(m => `
+                <div class="bg-parchment-card border border-gold/60 rounded-lg p-5 text-center flex flex-col justify-between shadow-lg hover:border-gold transition">
+                    <div>
+                        <div class="relative inline-block mb-3">
+                            <img src="${m.photo}" alt="${m.name}" class="w-24 h-24 rounded-full object-cover border-2 border-gold mx-auto shadow">
+                        </div>
+                        <h4 class="font-cinzel font-bold text-gold text-xl">${m.name}</h4>
+                        <div class="font-medieval text-sm text-amber-300 mb-3">${m.class}</div>
+
+                        <div class="bg-black/40 p-3 rounded border border-gold/30 text-left text-xs mb-3 space-y-1">
+                            <div class="flex justify-between border-b border-gold/20 pb-1">
+                                <span>Fuerza: <strong>${m.str}/20</strong></span>
+                                <span>Paciencia: <strong>${m.pac}/20</strong></span>
+                            </div>
+                            <p class="text-amber-100/80 pt-1"><strong>Pasiva:</strong> ${m.passive}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 border-t border-gold/20 pt-2">
+                        <button onclick="editMember('${m.id}')" class="text-amber-400 hover:text-amber-200 text-xs px-2 py-1 border border-gold/30 rounded"><i class="fa-solid fa-pen"></i> Editar</button>
+                        <button onclick="deleteMember('${m.id}')" class="text-red-400 hover:text-red-200 text-xs px-2 py-1 border border-red-900/50 rounded"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSpells() {
+            const container = document.getElementById('spellList');
+            if (spells.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-amber-200/60 font-medieval border border-dashed border-gold/30 rounded">
+                        <i class="fa-solid fa-wand-magic-sparkles text-3xl mb-2 text-gold/50"></i>
+                        <p>No se han registrado hechizos ni frases célebres aún.</p>
+                    </div>`;
+                return;
+            }
+            container.innerHTML = spells.map(s => `
+                <details class="bg-parchment-card border border-gold/40 rounded p-3 group">
+                    <summary class="font-cinzel font-bold text-gold cursor-pointer flex justify-between items-center">
+                        <span>${s.name}</span>
+                        <div class="flex items-center gap-3">
+                            ${s.author ? `<span class="text-xs font-normal text-amber-300/60">${s.author}</span>` : ''}
+                            <button onclick="deleteSpell('${s.id}')" class="text-red-400 hover:text-red-200 text-xs" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </summary>
+                    <p class="text-sm text-amber-100/90 mt-2 pl-3 border-l-2 border-gold/50">${s.effect}</p>
+                </details>
+            `).join('');
+        }
+
+        function renderTreasures() {
+            const container = document.getElementById('treasureList');
+            if (treasures.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-amber-200/60 font-medieval border border-dashed border-gold/30 rounded">
+                        <i class="fa-solid fa-gem text-3xl mb-2 text-gold/50"></i>
+                        <p>La bóveda del tesoro está vacía. ¡Sube las fotos y memes de tus viajes!</p>
+                    </div>`;
+                return;
+            }
+            container.innerHTML = treasures.map(t => `
+                <div class="relative group bg-parchment-card border border-gold/40 rounded overflow-hidden shadow">
+                    <img src="${t.url}" alt="${t.title}" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
+                    <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-between p-3">
+                        <div class="text-right">
+                            <button onclick="deleteTreasure('${t.id}')" class="text-red-400 hover:text-red-200 text-sm"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                        <span class="font-cinzel text-xs text-gold font-bold text-center">${t.title}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAll() {
+            renderQuests();
+            renderMembers();
+            renderSpells();
+            renderTreasures();
+        }
+
+        // === ACCIONES CRUD ===
+
+        // Misiones
+        function openQuestModal() {
+            document.getElementById('questForm').reset();
+            document.getElementById('questId').value = '';
+            document.getElementById('questModalTitle').innerText = 'Nueva Misión';
+            document.getElementById('questModal').classList.remove('hidden');
+            document.getElementById('questModal').classList.add('flex');
+        }
+
+        function editQuest(id) {
+            const q = quests.find(item => item.id === id);
+            if (!q) return;
+            document.getElementById('questId').value = q.id;
+            document.getElementById('questTitle').value = q.title;
+            document.getElementById('questType').value = q.type;
+            document.getElementById('questObjective').value = q.objective;
+            document.getElementById('questReward').value = q.reward || '';
+            document.getElementById('questModalTitle').innerText = 'Editar Misión';
+            document.getElementById('questModal').classList.remove('hidden');
+            document.getElementById('questModal').classList.add('flex');
+        }
+
+        function saveQuest(e) {
+            e.preventDefault();
+            const id = document.getElementById('questId').value || 'q_' + Date.now();
+            const title = document.getElementById('questTitle').value;
+            const type = document.getElementById('questType').value;
+            const objective = document.getElementById('questObjective').value;
+            const reward = document.getElementById('questReward').value;
+
+            const existingIndex = quests.findIndex(q => q.id === id);
+            if (existingIndex >= 0) {
+                quests[existingIndex] = { ...quests[existingIndex], title, type, objective, reward };
+            } else {
+                quests.push({ id, title, type, objective, reward, completed: false });
+            }
+            closeModal('questModal');
+            saveData();
+        }
+
+        function toggleQuestStatus(id) {
+            const q = quests.find(item => item.id === id);
+            if (q) {
+                q.completed = !q.completed;
+                saveData();
+            }
+        }
+
+        function deleteQuest(id) {
+            quests = quests.filter(q => q.id !== id);
+            saveData();
+        }
+
+        // Integrantes
+        function openMemberModal() {
+            document.getElementById('memberForm').reset();
+            document.getElementById('memberId').value = '';
+            document.getElementById('memberModalTitle').innerText = 'Añadir Aventurero';
+            document.getElementById('memberModal').classList.remove('hidden');
+            document.getElementById('memberModal').classList.add('flex');
+        }
+
+        function editMember(id) {
+            const m = members.find(item => item.id === id);
+            if (!m) return;
+            document.getElementById('memberId').value = m.id;
+            document.getElementById('memberName').value = m.name;
+            document.getElementById('memberClass').value = m.class;
+            document.getElementById('memberPhoto').value = m.photo;
+            document.getElementById('statStr').value = m.str;
+            document.getElementById('statPac').value = m.pac;
+            document.getElementById('memberPassive').value = m.passive;
+            document.getElementById('memberModalTitle').innerText = 'Editar Aventurero';
+            document.getElementById('memberModal').classList.remove('hidden');
+            document.getElementById('memberModal').classList.add('flex');
+        }
+
+        function saveMember(e) {
+            e.preventDefault();
+            const id = document.getElementById('memberId').value || 'm_' + Date.now();
+            const name = document.getElementById('memberName').value;
+            const className = document.getElementById('memberClass').value;
+            const photo = document.getElementById('memberPhoto').value;
+            const str = parseInt(document.getElementById('statStr').value) || 10;
+            const pac = parseInt(document.getElementById('statPac').value) || 10;
+            const passive = document.getElementById('memberPassive').value;
+
+            const idx = members.findIndex(m => m.id === id);
+            if (idx >= 0) {
+                members[idx] = { id, name, class: className, photo, str, pac, passive };
+            } else {
+                members.push({ id, name, class: className, photo, str, pac, passive });
+            }
+            closeModal('memberModal');
+            saveData();
+        }
+
+        function deleteMember(id) {
+            members = members.filter(m => m.id !== id);
+            saveData();
+        }
+
+        // Grimorio
+        function openSpellModal() {
+            document.getElementById('spellForm').reset();
+            document.getElementById('spellId').value = '';
+            document.getElementById('spellModal').classList.remove('hidden');
+            document.getElementById('spellModal').classList.add('flex');
+        }
+
+        function saveSpell(e) {
+            e.preventDefault();
+            const id = 's_' + Date.now();
+            const name = document.getElementById('spellName').value;
+            const effect = document.getElementById('spellEffect').value;
+            const author = document.getElementById('spellAuthor').value;
+            spells.push({ id, name, effect, author });
+            closeModal('spellModal');
+            saveData();
+        }
+
+        function deleteSpell(id) {
+            spells = spells.filter(s => s.id !== id);
+            saveData();
+        }
+
+        // Tesoros
+        function openTreasureModal() {
+            document.getElementById('treasureForm').reset();
+            document.getElementById('treasureModal').classList.remove('hidden');
+            document.getElementById('treasureModal').classList.add('flex');
+        }
+
+        function saveTreasure(e) {
+            e.preventDefault();
+            const id = 't_' + Date.now();
+            const url = document.getElementById('treasureUrl').value;
+            const title = document.getElementById('treasureTitle').value;
+            treasures.push({ id, url, title });
+            closeModal('treasureModal');
+            saveData();
+        }
+
+        function deleteTreasure(id) {
+            treasures = treasures.filter(t => t.id !== id);
+            saveData();
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        // === EFECTOS DE AUDIO SINTETIZADOS (Web Audio API) ===
+
+        let audioCtx = null;
+        let isPlayingSoundtrack = false;
+        let musicTimer = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Rugido sintético del Oso Búho
+        function triggerRoar() {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 1.2);
+
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.2);
+
+            // Animación visual al rugir
+            const logo = document.getElementById('owlbearLogo');
+            logo.classList.add('scale-110', 'rotate-3');
+            setTimeout(() => logo.classList.remove('scale-110', 'rotate-3'), 300);
+        }
+
+        // Música medieval generada por sintes (Tavern Ambient)
+        function toggleSoundtrack() {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            isPlayingSoundtrack = !isPlayingSoundtrack;
+            const btnText = document.getElementById('audioStatus');
+
+            if (isPlayingSoundtrack) {
+                btnText.innerText = 'Música de Taberna: ON';
+                playTavernNotes();
+            } else {
+                btnText.innerText = 'Música de Taberna: OFF';
+                if (musicTimer) clearInterval(musicTimer);
+            }
+        }
+
+        function playTavernNotes() {
+            const scale = [220, 247.08, 261.63, 293.66, 329.63, 349.23, 392.00]; // La menor pentatónica / dórica
+            musicTimer = setInterval(() => {
+                if (!isPlayingSoundtrack) return;
+
+                const freq = scale[Math.floor(Math.random() * scale.length)];
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.8);
+            }, 400);
+        }
